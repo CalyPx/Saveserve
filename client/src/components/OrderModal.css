@@ -1,0 +1,67 @@
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); width: 100%; max-width: 520px;
+  max-height: 90vh; overflow-y: auto; animation: fadeInUp 0.25s ease;
+}
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--border); }
+.modal-title { font-family: var(--font-head); font-size: 20px; font-weight: 700; }
+.modal-close { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 4px 8px; border-radius: 6px; }
+.modal-close:hover { background: var(--surface2); }
+.modal-steps { display: flex; gap: 4px; padding: 12px 24px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.mstep { font-size: 11px; font-weight: 600; color: var(--text-muted); padding: 4px 10px; border-radius: 100px; background: var(--surface2); }
+.mstep.active { background: rgba(45,106,79,0.2); color: var(--green-light); }
+.modal-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+.modal-body h3 { font-size: 18px; font-weight: 700; }
+
+/* QUANTITY */
+.qty-row { display: flex; align-items: center; justify-content: center; gap: 24px; margin: 8px 0; }
+.qty-btn { width: 64px; height: 64px; border-radius: 50%; border: none; font-size: 28px; cursor: pointer; transition: all 0.15s; }
+.qty-btn.minus { background: rgba(248,81,73,0.15); color: var(--danger); }
+.qty-btn.minus:hover { background: rgba(248,81,73,0.3); }
+.qty-btn.plus { background: rgba(63,185,80,0.15); color: var(--success); }
+.qty-btn.plus:hover { background: rgba(63,185,80,0.3); }
+.qty-display { text-align: center; }
+.qty-num { font-family: var(--font-head); font-size: 56px; font-weight: 800; line-height: 1; }
+.qty-unit { font-size: 16px; color: var(--green-light); font-weight: 600; }
+.avail-note { text-align: center; font-size: 13px; color: var(--text-muted); }
+.base-price-box { background: var(--surface2); border-radius: var(--radius); padding: 16px; }
+.bp-row { display: flex; justify-content: space-between; font-size: 15px; padding: 6px 0; border-bottom: 1px solid var(--border); }
+.bp-row:last-of-type { border: none; }
+
+/* BREAKDOWN */
+.breakdown-table { background: var(--surface2); border-radius: var(--radius); overflow: hidden; }
+.bt-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 14px; gap: 8px; }
+.bt-row:last-child { border: none; }
+.total-row { background: rgba(45,106,79,0.1); font-size: 16px; font-weight: 600; }
+.deposit-box { background: rgba(63,185,80,0.08); border: 1px solid rgba(63,185,80,0.3); border-radius: var(--radius); padding: 16px; text-align: center; }
+.deposit-title { font-weight: 700; font-size: 15px; margin-bottom: 8px; }
+.deposit-amount { font-family: var(--font-head); font-size: 36px; font-weight: 800; color: var(--success); margin-bottom: 8px; }
+.logistics-note { background: var(--surface2); border-radius: var(--radius); padding: 14px 16px; font-size: 13px; }
+.logistics-note ul { margin: 8px 0 0 16px; display: flex; flex-direction: column; gap: 4px; color: var(--text-muted); }
+
+/* CALL STEP */
+.farmer-call-card { display: flex; align-items: center; gap: 16px; }
+.fc-avatar { font-size: 48px; flex-shrink: 0; }
+.fc-name { font-size: 18px; font-weight: 700; }
+.fc-district { font-size: 13px; }
+.call-script { font-size: 14px; line-height: 1.7; }
+.cs-title { font-weight: 700; margin-bottom: 8px; color: var(--text-muted); font-size: 13px; }
+.confirm-check { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; padding: 16px; background: var(--surface2); border-radius: var(--radius); border: 2px solid var(--border); transition: border-color 0.2s; }
+.confirm-check:hover { border-color: var(--green); }
+.check-box { width: 24px; height: 24px; border-radius: 6px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; transition: all 0.15s; }
+.check-box.checked { background: var(--success); border-color: var(--success); color: #111; }
+.no-purchase-warning { font-size: 13px; color: var(--text-muted); border-left: 3px solid var(--orange); padding: 10px 14px; background: rgba(244,162,97,0.05); border-radius: 0 var(--radius) var(--radius) 0; }
+
+/* PAY STEP */
+.pay-summary { display: flex; flex-direction: column; }
+.ps-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 14px; }
+.ps-row:last-child { border: none; }
+.highlight-row { background: rgba(45,106,79,0.1); }
+.esewa-logo-box { text-align: center; padding: 12px; }
+.esewa-logo { font-family: var(--font-head); font-size: 28px; font-weight: 800; color: #60BB46; }
+.esewa-test-note { font-size: 12px; color: var(--text-muted); background: var(--surface2); border-radius: var(--radius); padding: 10px 14px; border: 1px solid var(--border); line-height: 1.8; }

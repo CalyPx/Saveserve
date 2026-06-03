@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api';
+import OrderModal from '../components/OrderModal';
 import './VendorDashboard.css';
 
 const CROP_FILTERS = ['All','🍅 Tomato','🥔 Potato','🥬 Cabbage','🥕 Carrot','🧅 Onion','🌽 Corn','🍊 Orange','🥦 Cauliflower','🍆 Eggplant','🌾 Rice'];
@@ -13,10 +14,8 @@ export default function VendorDashboard() {
   const [listings, setListings]   = useState([]);
   const [myOrders, setMyOrders]   = useState([]);
   const [filter, setFilter]       = useState('All');
-  const [view, setView]           = useState('browse');  // 'browse' | 'orders'
-  const [ordering, setOrdering]   = useState(null);
-  const [orderQty, setOrderQty]   = useState('');
-  const [loading, setLoading]     = useState(false);
+  const [view, setView]           = useState('browse');
+  const [activeListing, setActiveListing] = useState(null); // for OrderModal
   const [success, setSuccess]     = useState('');
 
   useEffect(() => { fetchData(); }, []);
@@ -36,20 +35,7 @@ export default function VendorDashboard() {
     ? listings
     : listings.filter(l => l.crop.toLowerCase() === filter.split(' ').pop().toLowerCase());
 
-  const placeOrder = async (listing) => {
-    if (!orderQty || orderQty < 1) return alert('Enter quantity');
-    if (orderQty > listing.quantity) return alert(`Only ${listing.quantity} kg available`);
-    setLoading(true);
-    try {
-      await api.post('/orders', { listingId: listing._id, quantity: Number(orderQty) });
-      setOrdering(null); setOrderQty('');
-      setSuccess(`✅ Order placed! Farmer ${listing.farmer?.name} will be notified.`);
-      fetchData();
-      setTimeout(() => setSuccess(''), 4000);
-    } catch (e) {
-      alert('Order failed. Try again.');
-    } finally { setLoading(false); }
-  };
+
 
   return (
     <div className="vendor-page">
@@ -129,23 +115,10 @@ export default function VendorDashboard() {
                         💡 Save ~Rs {Math.max(0, 100 - l.pricePerKg)}/kg vs Kalimati
                       </div>
 
-                      {ordering?._id === l._id ? (
-                        <div className="order-inline">
-                          <input className="input" type="number" placeholder={`Max ${l.quantity} kg`}
-                            value={orderQty} onChange={e => setOrderQty(e.target.value)} min="1" max={l.quantity} />
-                          <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-                            <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => placeOrder(l)} disabled={loading}>
-                              {loading ? '...' : '✅ Confirm'}
-                            </button>
-                            <button className="btn btn-ghost btn-sm" onClick={() => setOrdering(null)}>Cancel</button>
-                          </div>
-                        </div>
-                      ) : (
-                        <button className="btn btn-primary" style={{ width: '100%', marginTop: 16 }}
-                          onClick={() => { setOrdering(l); setOrderQty(''); }}>
-                          🛒 Order Now
-                        </button>
-                      )}
+                      <button className="btn btn-primary" style={{ width: '100%', marginTop: 16 }}
+                        onClick={() => setActiveListing(l)}>
+                        🛒 Order Now
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -187,6 +160,12 @@ export default function VendorDashboard() {
             }
           </div>
         )}
+      {activeListing && (
+        <OrderModal
+          listing={activeListing}
+          onClose={() => { setActiveListing(null); fetchData(); }}
+        />
+      )}
       </main>
     </div>
   );

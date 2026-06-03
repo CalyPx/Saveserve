@@ -5,11 +5,12 @@ const orderSchema = new mongoose.Schema({
   farmer:       { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   vendor:       { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   quantity:     { type: Number, required: true },
-  agreedPrice:  { type: Number, required: true },     // pricePerKg at time of order
-  totalAmount:  { type: Number, required: true },     // quantity * agreedPrice
+  agreedPrice:  { type: Number, required: true },
+  totalAmount:  { type: Number, required: true },
+  depositAmount:{ type: Number, default: 0 },
   status: {
     type: String,
-    enum: ['pending', 'confirmed', 'ready', 'completed', 'cancelled'],
+    enum: ['pending','confirmed','deposit_paid','ready','completed','cancelled'],
     default: 'pending'
   },
   note: { type: String }

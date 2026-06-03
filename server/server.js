@@ -23,6 +23,7 @@ app.use('/api/auth',     require('./routes/auth'));
 app.use('/api/listings', require('./routes/listings'));
 app.use('/api/orders',   require('./routes/orders'));
 app.use('/api/impact',   require('./routes/impact'));
+app.use('/api/payment',  require('./routes/payment'));
 
 // Socket.io
 io.on('connection', (socket) => {
