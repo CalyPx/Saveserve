@@ -9,11 +9,26 @@ const STEPS = ['quantity', 'breakdown', 'call', 'pay'];
 export default function OrderModal({ listing, onClose }) {
   const { user } = useAuth();
 
-  const [step, setStep]         = useState('quantity');
-  const [quantity, setQuantity] = useState(1);
+  const [step, setStep]           = useState('quantity');
+  const [quantity, setQuantity]   = useState(1);
   const [confirmed, setConfirmed] = useState(false);
-  const [placing, setPlacing]   = useState(false);
+  const [placing, setPlacing]     = useState(false);
+  const [feasibility, setFeasibility] = useState(null);
+  const [aiLoading, setAiLoading]    = useState(false);
   const esewaFormRef = useRef(null);
+
+  // Fetch AI feasibility when entering breakdown step
+  useEffect(() => {
+    if (step !== 'breakdown' || !listing.harvestDate) return;
+    setAiLoading(true);
+    api.post('/ai/feasibility', {
+      crop:         listing.crop,
+      harvestDate:  listing.harvestDate,
+      distanceKm:   costs.distanceKm,
+      fromDistrict: listing.farmer?.district || listing.district,
+      quantity
+    }).then(r => setFeasibility(r.data)).catch(() => {}).finally(() => setAiLoading(false));
+  }, [step]);
 
   const costs = calcOrderCost(
     quantity,
@@ -161,6 +176,30 @@ export default function OrderModal({ listing, onClose }) {
                 <li>Ordering more = lower per-kg logistics cost</li>
               </ul>
             </div>
+
+            {/* AI FEASIBILITY */}
+            {aiLoading && (
+              <div className="ai-loading">🤖 AI is analyzing freshness &amp; transport feasibility...</div>
+            )}
+            {feasibility && !aiLoading && (
+              <div className={`ai-card ai-${feasibility.status}`}>
+                <div className="ai-header">
+                  <span className="ai-icon">{feasibility.status==='feasible'?'✅':feasibility.status==='risky'?'⚠️':'❌'}</span>
+                  <span className="ai-title">AI Freshness Analysis</span>
+                  <span className={`badge ${feasibility.status==='feasible'?'badge-green':feasibility.status==='risky'?'badge-orange':'badge-red'}`}>{feasibility.status.replace('_',' ')}</span>
+                </div>
+                <p className="ai-msg">{feasibility.vendorMessage}</p>
+                <div className="ai-stats">
+                  <span>🕐 Delivery: ~{feasibility.deliveryHours}h</span>
+                  <span>📦 Shelf left after delivery: {feasibility.daysRemaining} days</span>
+                </div>
+                {feasibility.status === 'not_feasible' && (
+                  <button className="btn btn-danger btn-sm" style={{width:'100%',marginTop:8}} onClick={onClose}>
+                    ❌ Cancel — Goods may spoil
+                  </button>
+                )}
+              </div>
+            )}
 
             <div style={{display:'flex',gap:12}}>
               <button className="btn btn-ghost" onClick={() => setStep('quantity')}>← Back</button>

@@ -1,24 +1,52 @@
 .voice-counter {
-  display: flex; align-items: center; justify-content: center; gap: 32px;
-  margin: 40px auto; max-width: 400px;
+  display: flex; align-items: center; gap: 0;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg); overflow: hidden;
+  width: 100%;
 }
-.vc-btn {
-  width: 80px; height: 80px; border-radius: 50%;
-  border: none; font-size: 36px; font-weight: 300;
-  cursor: pointer; transition: all 0.15s;
-  display: flex; align-items: center; justify-content: center;
-  user-select: none; -webkit-user-select: none;
-}
-.vc-minus { background: rgba(248,81,73,0.15); color: var(--danger); }
-.vc-minus:hover:not(:disabled) { background: rgba(248,81,73,0.3); transform: scale(1.1); }
-.vc-plus  { background: rgba(63,185,80,0.15); color: var(--success); }
-.vc-plus:hover:not(:disabled)  { background: rgba(63,185,80,0.3);  transform: scale(1.1); }
-.vc-btn:active:not(:disabled)  { transform: scale(0.95); }
-.vc-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-.vc-display { text-align: center; min-width: 120px; }
-.vc-value   { font-family: var(--font-head); font-size: 72px; font-weight: 800; line-height: 1; color: var(--text); }
-.vc-unit    { font-size: 18px; color: var(--green-light); font-weight: 600; margin-top: 4px; }
-.vc-nepali  { font-size: 20px; color: var(--text-muted); margin-top: 8px; font-weight: 500; }
-.vc-speak-btn { background: none; border: none; font-size: 20px; cursor: pointer; margin-top: 6px; opacity: 0.6; transition: opacity 0.15s; }
-.vc-speak-btn:hover { opacity: 1; }
+.vc-btn {
+  width: 72px; height: 80px; flex-shrink: 0;
+  background: var(--surface2); border: none;
+  font-size: 32px; font-weight: 300; color: var(--text-muted);
+  cursor: pointer; transition: all 0.12s;
+  display: flex; align-items: center; justify-content: center;
+}
+.vc-btn:hover:not(:disabled) { background: var(--surface3); color: var(--text); }
+.vc-btn:active:not(:disabled) { background: var(--border); }
+.vc-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+
+.vc-minus { border-right: 1.5px solid var(--border); color: var(--red); font-size: 36px; }
+.vc-minus:hover:not(:disabled) { background: var(--red-dim); color: var(--red); }
+
+.vc-plus { border-left: 1.5px solid var(--border); color: var(--green); font-size: 36px; }
+.vc-plus:hover:not(:disabled) { background: var(--green-dim); color: var(--green); }
+
+.vc-display {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 2px;
+  padding: 12px 8px; position: relative;
+}
+
+.vc-value {
+  font-family: var(--font-head); font-size: 42px; font-weight: 700;
+  color: var(--text); line-height: 1;
+}
+
+.vc-unit {
+  font-family: var(--font-nepali); font-size: 15px;
+  color: var(--text-muted); font-weight: 500;
+}
+
+.vc-nepali {
+  font-family: var(--font-nepali); font-size: 13px;
+  color: var(--text-dim); margin-top: 2px;
+}
+
+.vc-speak-btn {
+  position: absolute; top: 6px; right: 8px;
+  background: none; border: none; font-size: 16px;
+  color: var(--text-dim); cursor: pointer; padding: 4px;
+  border-radius: var(--radius); transition: all var(--t);
+}
+.vc-speak-btn:hover { color: var(--text-muted); background: var(--surface2); }

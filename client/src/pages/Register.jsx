@@ -1,36 +1,39 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import api from '../api';
 import { useAuth } from '../context/AuthContext';
+import api from '../api';
 import './Auth.css';
 
 const DISTRICTS = [
-  'Kathmandu','Lalitpur','Bhaktapur','Dhading','Nuwakot','Sindhupalchok',
-  'Kavrepalanchok','Makwanpur','Chitwan','Pokhara','Kaski','Syangja',
-  'Tanahu','Gorkha','Lamjung','Dhankuta','Morang','Sunsari','Jhapa',
-  'Ilam','Kanchanpur','Kailali','Dang','Rupandehi','Palpa','Gulmi','Arghakhanchi'
-];
+  'Bhaktapur','Chitwan','Dhading','Dhankuta','Dhanusha','Dolakha',
+  'Gorkha','Ilam','Jhapa','Jumla','Kaski','Kathmandu','Kavrepalanchok',
+  'Lalitpur','Lamjung','Makwanpur','Morang','Mustang','Nawalpur',
+  'Nuwakot','Palpa','Parbat','Parsa','Rupandehi','Salyan','Sindhuli',
+  'Sindhupalchok','Solukhumbu','Sunsari','Syangja','Tanahu',
+].sort();
 
 export default function Register() {
-  const [params] = useSearchParams();
-  const { login } = useAuth();
-  const navigate = useNavigate();
+  const { login }   = useAuth();
+  const navigate    = useNavigate();
+  const [params]    = useSearchParams();
 
-  const [role, setRole] = useState(params.get('role') || '');
-  const [form, setForm] = useState({ name: '', phone: '', password: '', district: '' });
-  const [error, setError] = useState('');
+  const [form, setForm] = useState({
+    name:'', phone:'', password:'',
+    role: params.get('role') || 'farmer',
+    district:'Kathmandu',
+  });
+  const [error, setError]     = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
+  const set = (k,v) => setForm(f => ({...f,[k]:v}));
 
-  const handleSubmit = async e => {
+  const handle = async e => {
     e.preventDefault();
-    if (!role) return setError('Please select your role');
     setLoading(true); setError('');
     try {
-      const { data } = await api.post('/auth/register', { ...form, role });
-      login(data.user, data.token);
-      navigate(role === 'farmer' ? '/farmer' : '/vendor');
+      const { data } = await api.post('/auth/register', form);
+      login(data.user, data.token);                    // ← correct call
+      navigate(data.user.role === 'farmer' ? '/farmer' : '/vendor');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
     } finally { setLoading(false); }
@@ -38,65 +41,65 @@ export default function Register() {
 
   return (
     <div className="auth-page">
-      <div className="auth-card card fade-in-up">
-        <Link to="/" className="auth-back">← Back</Link>
-        <div className="auth-logo">🌾 KrishiDirect</div>
-        <h1 className="auth-title">Create Account</h1>
-        <p className="auth-sub text-muted">Join thousands of farmers and vendors</p>
+      <div className="auth-brand">
+        <Link to="/" className="auth-logo-link">
+          <img src="/images/harvo_logo.png" alt="Harvo" />
+          Harvo
+        </Link>
+        <p className="auth-brand-tag nepali">किसानको बाली, सीधा बजार</p>
+      </div>
 
-        {/* ROLE SELECTOR */}
-        {!params.get('role') && (
-          <div className="role-selector">
-            <div className={`role-card ${role === 'farmer' ? 'active' : ''}`}
-              onClick={() => setRole('farmer')}>
-              <span className="role-icon">🧑‍🌾</span>
-              <span className="role-label">Farmer</span>
-              <span className="role-sub text-muted">Sell my produce</span>
-            </div>
-            <div className={`role-card ${role === 'vendor' ? 'active' : ''}`}
-              onClick={() => setRole('vendor')}>
-              <span className="role-icon">🏪</span>
-              <span className="role-label">Vendor</span>
-              <span className="role-sub text-muted">Buy fresh produce</span>
-            </div>
-          </div>
-        )}
+      <div className="auth-box card">
+        <h2 className="auth-title">Create account</h2>
+
+        {/* Role Toggle */}
+        <div className="auth-role-row">
+          <button type="button"
+            className={`auth-role-btn ${form.role==='farmer'?'active-green':''}`}
+            onClick={() => set('role','farmer')}>
+            <span className="nepali" style={{fontSize:22}}>किसान</span>
+            <span style={{fontSize:12}}>Farmer</span>
+          </button>
+          <button type="button"
+            className={`auth-role-btn ${form.role==='vendor'?'active-orange':''}`}
+            onClick={() => set('role','vendor')}>
+            <span className="nepali" style={{fontSize:22}}>व्यापारी</span>
+            <span style={{fontSize:12}}>Vendor</span>
+          </button>
+        </div>
 
         {error && <div className="auth-error">{error}</div>}
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
-            <label className="label">Full Name</label>
-            <input className="input" name="name" placeholder="Ram Bahadur Shrestha"
-              value={form.name} onChange={handleChange} required />
+        <form onSubmit={handle} className="auth-form">
+          <div>
+            <label className="input-label">Full Name</label>
+            <input className="input" placeholder="Your name"
+              value={form.name} onChange={e => set('name',e.target.value)} required />
           </div>
-          <div className="form-group">
-            <label className="label">Phone Number</label>
-            <input className="input" name="phone" type="tel"
-              placeholder="98XXXXXXXX" value={form.phone}
-              onChange={handleChange} required />
+          <div>
+            <label className="input-label">Phone</label>
+            <input className="input" type="tel" placeholder="98XXXXXXXX"
+              value={form.phone} onChange={e => set('phone',e.target.value)} required />
           </div>
-          <div className="form-group">
-            <label className="label">District</label>
-            <select className="input" name="district" value={form.district} onChange={handleChange} required>
-              <option value="">Select your district</option>
-              {DISTRICTS.map(d => <option key={d} value={d}>{d}</option>)}
+          <div>
+            <label className="input-label">District</label>
+            <select className="input" value={form.district} onChange={e => set('district',e.target.value)}>
+              {DISTRICTS.map(d => <option key={d}>{d}</option>)}
             </select>
           </div>
-          <div className="form-group">
-            <label className="label">Password</label>
-            <input className="input" name="password" type="password"
-              placeholder="Min 6 characters" value={form.password}
-              onChange={handleChange} required minLength={6} />
+          <div>
+            <label className="input-label">Password</label>
+            <input className="input" type="password" placeholder="Min 6 characters"
+              value={form.password} onChange={e => set('password',e.target.value)} required minLength={6} />
           </div>
-          <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={loading}>
-            {loading ? 'Creating account...' : `Register as ${role || '...'}  →`}
+          <button className="btn btn-primary btn-lg" style={{width:'100%'}} disabled={loading}>
+            {loading ? 'Creating...' : `Join as ${form.role === 'farmer' ? 'Farmer' : 'Vendor'}`}
           </button>
         </form>
 
-        <p className="auth-footer text-muted">
-          Already have an account? <Link to="/login" style={{ color: 'var(--green-light)' }}>Login</Link>
-        </p>
+        <div className="auth-switch">
+          Already have an account? <Link to="/login">Sign in</Link>
+        </div>
       </div>
     </div>
   );

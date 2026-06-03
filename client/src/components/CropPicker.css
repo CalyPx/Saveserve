@@ -1,21 +1,65 @@
+/* Horizontal scroll grid for mobile — 2 cols on desktop, scroll on mobile */
 .crop-picker {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
-  margin-top: 24px;
-  max-height: 480px;
+  max-height: 60vh;
   overflow-y: auto;
-  padding-right: 4px;
+  padding: 4px 2px;
 }
-.crop-btn {
-  display: flex; flex-direction: column; align-items: center; gap: 6px;
-  padding: 16px 8px; border-radius: var(--radius);
-  border: 2px solid var(--border);
-  background: var(--surface2); cursor: pointer;
-  transition: all 0.15s ease;
+
+.crop-card {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 12px 8px 14px;
+  border-radius: var(--radius-md);
+  border: 2.5px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  transition: all 0.14s ease;
+  -webkit-tap-highlight-color: transparent;
 }
-.crop-btn:hover { border-color: var(--green); transform: translateY(-2px); }
-.crop-btn.selected { border-color: var(--green-light); background: rgba(45,106,79,0.2); box-shadow: var(--glow-green); }
-.crop-emoji  { font-size: 36px; line-height: 1; }
-.crop-nepali { font-size: 13px; font-weight: 600; color: var(--text); }
-.crop-english{ font-size: 11px; color: var(--text-muted); }
+.crop-card:hover  { border-color: var(--green); transform: translateY(-2px); box-shadow: var(--shadow); }
+.crop-card:active { transform: scale(0.96); }
+.crop-selected    { border-color: var(--green) !important; background: var(--green-pale); box-shadow: 0 0 0 3px rgba(42,122,59,0.15); }
+
+.crop-img-wrap {
+  width: 100%; aspect-ratio: 1;
+  border-radius: var(--radius);
+  overflow: hidden; position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+.crop-img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 0.2s ease;
+}
+.crop-card:hover .crop-img { transform: scale(1.06); }
+
+.crop-fallback {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-nepali); font-size: 28px; font-weight: 700;
+  color: rgba(255,255,255,0.9);
+  border-radius: var(--radius);
+}
+
+.crop-nepali {
+  font-family: var(--font-nepali);
+  font-size: 15px; font-weight: 600;
+  color: var(--text); text-align: center;
+  line-height: 1.2;
+}
+
+.crop-check {
+  position: absolute; top: 6px; right: 6px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--green); color: #fff;
+  font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* Mobile: 3 cols */
+@media (max-width: 600px) {
+  .crop-picker { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .crop-nepali { font-size: 13px; }
+}

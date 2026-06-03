@@ -1,61 +1,64 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import api from '../api';
 import { useAuth } from '../context/AuthContext';
+import api from '../api';
 import './Auth.css';
 
 export default function Login() {
-  const { login } = useAuth();
-  const navigate = useNavigate();
-  const [form, setForm] = useState({ phone: '', password: '' });
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const { login }   = useAuth();
+  const navigate    = useNavigate();
+  const [phone, setPhone]       = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError]       = useState('');
+  const [loading, setLoading]   = useState(false);
 
-  const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
-
-  const handleSubmit = async e => {
+  const handle = async e => {
     e.preventDefault();
     setLoading(true); setError('');
     try {
-      const { data } = await api.post('/auth/login', form);
-      login(data.user, data.token);
+      const { data } = await api.post('/auth/login', { phone, password });
+      login(data.user, data.token);                    // ← correct call
       navigate(data.user.role === 'farmer' ? '/farmer' : '/vendor');
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      setError(err.response?.data?.message || 'Wrong phone or password');
     } finally { setLoading(false); }
   };
 
   return (
     <div className="auth-page">
-      <div className="auth-card card fade-in-up">
-        <Link to="/" className="auth-back">← Back</Link>
-        <div className="auth-logo">🌾 KrishiDirect</div>
-        <h1 className="auth-title">Welcome back</h1>
-        <p className="auth-sub text-muted">Login with your phone number</p>
+      <div className="auth-brand">
+        <Link to="/" className="auth-logo-link">
+          <img src="/images/harvo_logo.png" alt="Harvo" />
+          Harvo
+        </Link>
+        <p className="auth-brand-tag nepali">किसानको बाली, सीधा बजार</p>
+      </div>
+
+      <div className="auth-box card">
+        <h2 className="auth-title">Sign in</h2>
+        <p className="text-muted" style={{marginBottom:24,fontSize:14}}>Enter your phone number and password</p>
 
         {error && <div className="auth-error">{error}</div>}
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
-            <label className="label">Phone Number</label>
-            <input className="input" name="phone" type="tel"
-              placeholder="98XXXXXXXX" value={form.phone}
-              onChange={handleChange} required />
+        <form onSubmit={handle} className="auth-form">
+          <div>
+            <label className="input-label">Phone Number</label>
+            <input className="input" type="tel" placeholder="98XXXXXXXX"
+              value={phone} onChange={e => setPhone(e.target.value)} required />
           </div>
-          <div className="form-group">
-            <label className="label">Password</label>
-            <input className="input" name="password" type="password"
-              placeholder="••••••••" value={form.password}
-              onChange={handleChange} required />
+          <div>
+            <label className="input-label">Password</label>
+            <input className="input" type="password" placeholder="••••••••"
+              value={password} onChange={e => setPassword(e.target.value)} required />
           </div>
-          <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={loading}>
-            {loading ? 'Logging in...' : 'Login →'}
+          <button className="btn btn-primary btn-lg" style={{width:'100%'}} disabled={loading}>
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 
-        <p className="auth-footer text-muted">
-          No account? <Link to="/register" style={{ color: 'var(--green-light)' }}>Register here</Link>
-        </p>
+        <div className="auth-switch">
+          New to Harvo? <Link to="/register">Create account</Link>
+        </div>
       </div>
     </div>
   );
