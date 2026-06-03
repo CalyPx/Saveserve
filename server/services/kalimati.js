@@ -116,4 +116,12 @@ function getPriceRange(cropName) {
 
 function getShelfLife(cropName) { return SHELF_LIFE[cropName] || 14; }
 
-module.exports = { fetchKalimatiPrices, loadFallbackPrices, getKalimatiPrice, getPriceRange, getShelfLife };
+// Auto-load fallback on startup
+loadFallbackPrices();
+// Re-fetch live prices in background
+fetchKalimatiPrices();
+
+// PRICE_DATA = KALIMATI_MAP keys — used by /all endpoint
+const PRICE_DATA = KALIMATI_MAP;
+
+module.exports = { fetchKalimatiPrices, loadFallbackPrices, getKalimatiPrice, getPriceRange, getShelfLife, PRICE_DATA };

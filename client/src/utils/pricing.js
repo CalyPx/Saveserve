@@ -24,62 +24,43 @@ export const DISTRICT_COORDS = {
   Pokhara:{lat:28.2096,lng:83.9856},
 };
 
-const HILLY = ['Dhading','Nuwakot','Sindhupalchok','Kavrepalanchok','Makwanpur',
-  'Kaski','Syangja','Tanahu','Gorkha','Lamjung','Dhankuta','Ilam','Palpa','Gulmi','Arghakhanchi'];
-
 /**
- * Logistics rate per kg — based on quantity (bulk = cheaper) × distance multiplier
- * Source: Nepal LTL cargo rates, Tata Ace/tempo hire rates, public bus cargo rates
- *
- * Base rate by quantity (larger shipment = better per-kg rate):
- *   < 50kg  → Rs 18/kg  (small parcel, bus cargo)
- *   50-100  → Rs 14/kg
- *   100-300 → Rs 10/kg  (tempo hire shared)
- *   300-500 → Rs  7/kg  (small truck shared)
- *   500+    → Rs  5/kg  (full truck load advantage)
- *
- * Distance multiplier:
- *   0-50km  → 1.0x  (within valley / nearby district)
- *   50-150  → 1.3x
- *   150-300 → 1.6x
- *   300+    → 2.0x
- *
- * Hilly surcharge: +30%
- * Minimum total: Rs 200
+ * MOCK: Upaya CityCargo API Pricing Simulator
+ * Instead of our own algorithm, we simulate an API call to a 3PL partner.
  */
-export function calcLogistics(quantity, distanceKm, fromDistrict) {
-  let basePerKg;
-  if (quantity < 50)       basePerKg = 18;
-  else if (quantity < 100) basePerKg = 14;
-  else if (quantity < 300) basePerKg = 10;
-  else if (quantity < 500) basePerKg = 7;
-  else                     basePerKg = 5;
+export function calcLogistics(quantity, distanceKm) {
+  // Determine vehicle type based on weight
+  // up to 100kg -> bike/scooter or small auto
+  // 100kg - 1000kg -> pickup
+  const vehicleType = quantity <= 100 ? 'bike' : 'pickup';
+  
+  const rates = {
+      bike: { base: 50, perKm: 15 },
+      pickup: { base: 500, perKm: 60 }
+  };
 
-  let distMult;
-  if (distanceKm < 50)       distMult = 1.0;
-  else if (distanceKm < 150) distMult = 1.3;
-  else if (distanceKm < 300) distMult = 1.6;
-  else                       distMult = 2.0;
-
-  let rate = basePerKg * distMult;
-  if (HILLY.includes(fromDistrict)) rate *= 1.3;
-
-  const total = Math.max(200, Math.round(rate * quantity));
-  const perKg  = Math.round(total / quantity);
-  return { perKg, total };
+  const selected = rates[vehicleType];
+  const total = selected.base + (distanceKm * selected.perKm);
+  
+  // Return same interface for frontend
+  const perKg = Math.round(total / quantity);
+  return { perKg, total: Math.round(total), vehicleType };
 }
 
-// Full order cost breakdown — 4% platform commission, 100% deposit
+// Full order cost breakdown — 4% platform commission, 10% Advance Deposit via eSewa
 export function calcOrderCost(quantity, pricePerKg, farmerDistrict, vendorDistrict) {
   const fC = DISTRICT_COORDS[farmerDistrict] || { lat:27.7, lng:85.3 };
   const vC = DISTRICT_COORDS[vendorDistrict] || { lat:27.7, lng:85.3 };
 
-  const distanceKm     = Math.round(getDistanceKm(fC.lat, fC.lng, vC.lat, vC.lng));
-  const { perKg: logisticsPerKg, total: logisticsTotal } = calcLogistics(quantity, distanceKm, farmerDistrict);
+  const distanceKm     = Math.max(1, Math.round(getDistanceKm(fC.lat, fC.lng, vC.lat, vC.lng)));
+  const { perKg: logisticsPerKg, total: logisticsTotal, vehicleType } = calcLogistics(quantity, distanceKm);
   const goodsTotal     = quantity * pricePerKg;
   const commission     = Math.round(goodsTotal * 0.04);   // 4% platform fee
   const grandTotal     = goodsTotal + logisticsTotal + commission;
-  const deposit        = grandTotal;                       // 100% paid upfront
+  
+  // 10% Advance (Minimum Rs 50) via eSewa to lock order
+  const deposit        = Math.max(50, Math.round(grandTotal * 0.10));
+  const cashOnDelivery = grandTotal - deposit;
 
-  return { distanceKm, logisticsPerKg, goodsTotal, logisticsTotal, commission, grandTotal, deposit };
+  return { distanceKm, logisticsPerKg, logisticsTotal, vehicleType, goodsTotal, commission, grandTotal, deposit, cashOnDelivery };
 }

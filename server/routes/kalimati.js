@@ -1,6 +1,17 @@
 const express = require('express');
 const router  = express.Router();
-const { getPriceRange, getShelfLife } = require('../services/kalimati');
+const { getPriceRange, getShelfLife, PRICE_DATA } = require('../services/kalimati');
+
+// GET /api/kalimati/all — return all crop rates at once
+router.get('/all', (req, res) => {
+  const result = {};
+  const crops = Object.keys(PRICE_DATA || {});
+  crops.forEach(crop => {
+    const range = getPriceRange(crop);
+    if (range) result[crop] = { available: true, ...range, shelfLife: getShelfLife(crop) };
+  });
+  res.json(result);
+});
 
 // GET /api/kalimati/:crop
 router.get('/:crop', (req, res) => {

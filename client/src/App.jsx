@@ -1,14 +1,17 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
-import Landing          from './pages/Landing';
-import Login            from './pages/Login';
-import Register         from './pages/Register';
-import FarmerDashboard  from './pages/FarmerDashboard';
-import VendorDashboard  from './pages/VendorDashboard';
-import ImpactBoard      from './pages/ImpactBoard';
-import PaymentSuccess   from './pages/PaymentSuccess';
-import PaymentFailed    from './pages/PaymentFailed';
+import Landing         from './pages/Landing';
+import Login           from './pages/Login';
+import Register        from './pages/Register';
+import FarmerDashboard from './pages/FarmerDashboard';
+import VendorDashboard from './pages/VendorDashboard';
+import ImpactBoard     from './pages/ImpactBoard';
+import AboutUs         from './pages/AboutUs';
+import Contact         from './pages/Contact';
+import ListingDetail   from './pages/ListingDetail';
+import PaymentSuccess  from './pages/PaymentSuccess';
+import PaymentFailed   from './pages/PaymentFailed';
 
 const PrivateRoute = ({ children, role }) => {
   const { user } = useAuth();
@@ -20,12 +23,15 @@ const PrivateRoute = ({ children, role }) => {
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           <Route path="/"                element={<Landing />} />
           <Route path="/login"           element={<Login />} />
           <Route path="/register"        element={<Register />} />
           <Route path="/impact"          element={<ImpactBoard />} />
+          <Route path="/about"           element={<AboutUs />} />
+          <Route path="/contact"         element={<Contact />} />
+          <Route path="/listing/:id"     element={<ListingDetail />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-failed"  element={<PaymentFailed />} />
           <Route path="/farmer" element={

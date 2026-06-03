@@ -25,40 +25,86 @@ function toNepali(n) {
   return `${toNepali(t)} हजार${r > 0 ? ' ' + toNepali(r) : ''}`;
 }
 
-// Pick a consistent Nepali voice — prefer male on all devices
-// Falls back to any ne-NP, then any Nepali, then default with pitch adjusted
+// ── VOICE: Always Nepali female, same on mobile and PC ───────────────
 let cachedVoice = null;
-function getNepaliVoice() {
-  if (cachedVoice) return cachedVoice;
+let voicesLoaded = false;
+
+function pickNepaliVoice(voices) {
+  // Priority 1: Exact Nepali female
+  let v = voices.find(v => v.lang === 'ne-NP' && /female/i.test(v.name));
+  if (v) return v;
+  // Priority 2: Any ne-NP voice
+  v = voices.find(v => v.lang === 'ne-NP');
+  if (v) return v;
+  // Priority 3: Any Nepali-family voice
+  v = voices.find(v => v.lang.startsWith('ne'));
+  if (v) return v;
+  // Priority 4: return null — we'll force ne-NP lang anyway
+  return null;
+}
+
+function getVoice() {
+  if (cachedVoice !== undefined && cachedVoice !== null) return cachedVoice;
   const voices = window.speechSynthesis.getVoices();
-  // Try male ne-NP
-  cachedVoice = voices.find(v => v.lang === 'ne-NP' && /male/i.test(v.name))
-    || voices.find(v => v.lang === 'ne-NP')
-    || voices.find(v => v.lang.startsWith('ne'))
-    || null;
+  if (voices.length > 0) {
+    cachedVoice = pickNepaliVoice(voices);
+    voicesLoaded = true;
+  }
   return cachedVoice;
 }
 
 export function speakNepali(text) {
   if (!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  const voice = getNepaliVoice();
-  if (voice) u.voice = voice;
-  u.lang   = 'ne-NP';
-  u.rate   = 0.82;   // slow enough for elderly
-  u.pitch  = 0.90;   // slightly lower pitch → sounds more consistent/male across devices
-  u.volume = 1;
-  window.speechSynthesis.speak(u);
+
+  const doSpeak = () => {
+    const u = new SpeechSynthesisUtterance(text);
+    const voice = getVoice();
+
+    if (voice) {
+      // A true Nepali voice was found — use it
+      u.voice = voice;
+      u.lang  = voice.lang;
+    } else {
+      // No Nepali voice — force ne-NP lang so browser attempts Nepali phonetics
+      u.lang = 'ne-NP';
+    }
+
+    u.rate   = 0.82;  // slightly slow — comfortable for seniors
+    u.pitch  = 1.20;  // higher pitch → more feminine sound on fallback
+    u.volume = 1;
+    window.speechSynthesis.speak(u);
+  };
+
+  if (voicesLoaded || window.speechSynthesis.getVoices().length > 0) {
+    doSpeak();
+  } else {
+    window.speechSynthesis.onvoiceschanged = () => {
+      cachedVoice = null;
+      voicesLoaded = true;
+      doSpeak();
+      window.speechSynthesis.onvoiceschanged = null;
+    };
+    // Safari fallback
+    setTimeout(() => {
+      if (!voicesLoaded) { cachedVoice = null; doSpeak(); }
+    }, 300);
+  }
 }
 
+// ── COMPONENT ────────────────────────────────────────────────────
 export default function VoiceCounter({ value, onChange, unit, min = 1, max = 9999 }) {
-  const holdRef = useRef(null);
+  const holdRef   = useRef(null);
+  const [typing, setTyping] = useState(false);
+  const [draft,  setDraft]  = useState('');
 
-  // Pre-load voices on mount
+  // Pre-load voices on mount so first speak is instant
   useEffect(() => {
-    window.speechSynthesis.getVoices();
-    window.speechSynthesis.onvoiceschanged = () => { cachedVoice = null; getNepaliVoice(); };
+    if (!window.speechSynthesis) return;
+    const load = () => { cachedVoice = null; getVoice(); voicesLoaded = true; };
+    window.speechSynthesis.onvoiceschanged = load;
+    window.speechSynthesis.getVoices(); // trigger load
+    return () => { window.speechSynthesis.onvoiceschanged = null; };
   }, []);
 
   const change = (delta) => {
@@ -67,33 +113,75 @@ export default function VoiceCounter({ value, onChange, unit, min = 1, max = 999
     speakNepali(toNepali(next));
   };
 
+  // Hold-to-repeat — non-passive pointer events
   const startHold = (delta) => {
     holdRef.current = setInterval(() => {
       onChange(prev => Math.min(Math.max(prev + delta, min), max));
-    }, 120);
+    }, 110);
   };
   const stopHold = () => clearInterval(holdRef.current);
 
-  return (
-    <div className="voice-counter">
-      <button className="vc-btn vc-minus"
-        onClick={() => change(-1)}
-        onMouseDown={() => startHold(-1)} onMouseUp={stopHold} onMouseLeave={stopHold}
-        onTouchStart={e => { e.preventDefault(); startHold(-1); }} onTouchEnd={stopHold}
-        disabled={value <= min}>−</button>
+  // Typing mode
+  const commitDraft = () => {
+    const n = parseInt(draft, 10);
+    if (!isNaN(n) && n >= min && n <= max) {
+      onChange(n);
+      speakNepali(toNepali(n));
+    }
+    setTyping(false);
+    setDraft('');
+  };
 
-      <div className="vc-display">
-        <div className="vc-value">{value}</div>
-        <div className="vc-unit">{unit}</div>
-        <div className="vc-nepali">{toNepali(value)}</div>
-        <button className="vc-speak-btn" onClick={() => speakNepali(toNepali(value))} title="सुन्नुस्">🔊</button>
+  return (
+    <div className="vc-wrap">
+
+      {/* ── MINUS HALF-SCREEN ── */}
+      <button
+        className="vc-side vc-minus"
+        disabled={value <= min}
+        onClick={() => change(-1)}
+        onPointerDown={() => startHold(-1)}
+        onPointerUp={stopHold}
+        onPointerLeave={stopHold}
+        onPointerCancel={stopHold}
+      >
+        −
+      </button>
+
+      {/* ── CENTER ── */}
+      <div className="vc-center" onClick={() => { setTyping(true); setDraft(String(value)); }}>
+        {typing ? (
+          <input
+            className="vc-input"
+            type="number"
+            value={draft}
+            autoFocus
+            onChange={e => setDraft(e.target.value)}
+            onBlur={commitDraft}
+            onKeyDown={e => e.key === 'Enter' && commitDraft()}
+          />
+        ) : (
+          <>
+            <div className="vc-value">{value}</div>
+            <div className="vc-unit">{unit}</div>
+            <div className="vc-nepali">{toNepali(value)}</div>
+            <div className="vc-hint">थिचेर नम्बर लेख्नुस्</div>
+          </>
+        )}
       </div>
 
-      <button className="vc-btn vc-plus"
+      {/* ── PLUS HALF-SCREEN ── */}
+      <button
+        className="vc-side vc-plus"
+        disabled={value >= max}
         onClick={() => change(1)}
-        onMouseDown={() => startHold(1)} onMouseUp={stopHold} onMouseLeave={stopHold}
-        onTouchStart={e => { e.preventDefault(); startHold(1); }} onTouchEnd={stopHold}
-        disabled={value >= max}>+</button>
+        onPointerDown={() => startHold(1)}
+        onPointerUp={stopHold}
+        onPointerLeave={stopHold}
+        onPointerCancel={stopHold}
+      >
+        +
+      </button>
     </div>
   );
 }

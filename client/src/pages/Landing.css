@@ -1,79 +1,329 @@
+/* ═══════════════════════════════════════
+   LANDING — Full-screen, no-scroll
+   Content pinned to RIGHT side
+   ═══════════════════════════════════════ */
+
 .land {
-  min-height: 100vh; background: var(--bg);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 32px 24px;
   position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* ── BACKGROUND ── */
+.land-bg {
+  background-image: url('D:\Saveserve\client\public\images\bgimg.jpg');
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center 30%;
+  z-index: 0;
+  animation: bgZoom 5.5s ease-in-out infinite alternate;
+}
+@keyframes bgZoom {
+  from { transform: scale(1.00); }
+  to   { transform: scale(1.05); }
+}
+
+.land-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to left,
+    rgba(0, 8, 3, 0.96) 0%,
+    rgba(0, 8, 3, 0.90) 25%,
+    rgba(0, 8, 3, 0.72) 45%,
+    rgba(0, 8, 3, 0.30) 65%,
+    rgba(0, 0, 0, 0.05) 100%
+  );
+}
+
+/* ── NAV ── */
+.land-nav {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 26px 52px;
 }
 
 .land-logo {
-  position: absolute; top: 28px; left: 28px;
-  display: flex; align-items: center; gap: 10px;
-  font-family: var(--font-head); font-size: 20px; font-weight: 700;
-  color: var(--green);
-}
-.land-logo img { height: 28px; width: 28px; object-fit: contain; }
-
-.land-center {
-  display: flex; flex-direction: column;
-  align-items: center; gap: 28px; text-align: center;
-  max-width: 420px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.02em;
+  user-select: none;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.6);
 }
 
-.land-tagline {
-  font-size: clamp(38px, 10vw, 64px);
-  font-weight: 700; line-height: 1.1;
-  color: var(--text);
-  letter-spacing: -0.01em;
+/* Desktop glass pill nav */
+.land-nav-pills {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: rgba(0, 0, 0, 0.50);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 100px;
+  padding: 5px 6px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.lnp {
+  padding: 8px 20px;
+  border-radius: 100px;
+  color: rgba(255, 255, 255, 0.88);
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.16s;
+  text-decoration: none;
+}
+.lnp:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+/* Nav right side: CTA + hamburger */
+.land-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Sign In CTA */
+.land-nav-cta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #BBFF4B;
+  color: #000;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 11px 22px;
+  border-radius: 100px;
+  text-decoration: none;
+  transition: all 0.16s;
+}
+.land-nav-cta:hover {
+  background: #ccff6a;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(187, 255, 75, 0.40);
+}
+.land-cta-arrow {
+  display: inline-block;
+  transition: transform 0.16s;
+}
+.land-nav-cta:hover .land-cta-arrow { transform: translate(2px, -2px); }
+
+/* Hamburger — hidden on desktop */
+.land-hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(255,255,255,0.20);
+  border-radius: 10px;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s;
+}
+.land-hamburger:hover { background: rgba(255,255,255,0.12); }
+.land-hamburger span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: #fff;
+  border-radius: 2px;
+  transition: all 0.25s;
+  transform-origin: center;
+}
+/* X state */
+.land-hamburger span.hb-x:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.land-hamburger span.hb-x:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.land-hamburger span.hb-x:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* Mobile dropdown menu */
+.land-mobile-menu {
+  position: absolute;
+  top: 72px;
+  left: 12px;
+  right: 12px;
+  z-index: 100;
+  background: rgba(4, 14, 6, 0.97);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  backdrop-filter: blur(24px);
+  animation: menuDrop 0.18s ease both;
+}
+@keyframes menuDrop {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.lmm-link {
+  padding: 14px 18px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.80);
+  text-decoration: none;
+  border-radius: 10px;
+  transition: all 0.14s;
+}
+.lmm-link:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.lmm-signin {
+  background: #BBFF4B;
+  color: #000;
+  font-weight: 700;
+  margin-top: 6px;
+  text-align: center;
+}
+.lmm-signin:hover { background: #ccff6a; }
+
+/* ── HERO ── */
+.land-hero {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-left: auto;
+  width: 50%;
+  padding: 0 52px 0 20px;
+  animation: heroIn 0.8s ease both;
+}
+@keyframes heroIn {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.land-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 100px;
+  padding: 7px 16px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.92);
+  margin-bottom: 20px;
+  width: fit-content;
+  backdrop-filter: blur(8px);
+}
+.land-tag-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #BBFF4B;
+  flex-shrink: 0;
+  animation: pulse 2s infinite;
+}
+
+.land-headline {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(36px, 4.2vw, 60px);
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.06;
+  letter-spacing: -0.035em;
+  margin-bottom: 22px;
+  text-shadow: 0 3px 20px rgba(0,0,0,0.7);
 }
 
 .land-sub {
-  font-size: 16px; color: var(--text-muted);
-  line-height: 1.7;
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.90);
+  line-height: 1.75;
+  margin-bottom: 36px;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.80);
 }
 
-.land-btns {
-  display: flex; flex-direction: column;
-  gap: 14px; width: 100%;
+/* ROLE SECTION */
+.land-role-section { display: flex; flex-direction: column; gap: 16px; }
+.land-i-am {
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.55);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
+.land-role-btns { display: flex; gap: 12px; flex-wrap: wrap; }
 
-.land-btn {
-  display: flex; flex-direction: column; align-items: center;
-  padding: 22px 20px; border-radius: var(--radius-lg);
-  text-decoration: none; transition: transform 0.14s, box-shadow 0.14s;
-  gap: 4px;
+.land-rb {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 100px;
+  text-decoration: none;
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  transition: all 0.18s;
+  white-space: nowrap;
 }
-.land-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-.land-btn:active { transform: translateY(1px); }
-
-.land-btn .nepali { font-size: 28px; font-weight: 700; }
-.land-btn-sub { font-size: 13px; opacity: 0.75; font-weight: 500; }
-
-.land-btn-green {
-  background: var(--green); color: #000;
-  box-shadow: 0 4px 0 #0f7a32;
+.land-rb-farmer { background: #BBFF4B; color: #000; }
+.land-rb-farmer:hover {
+  background: #ccff6a;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(187,255,75,0.40);
 }
-.land-btn-green:hover { background: #1aab4b; }
-
-.land-btn-dark {
-  background: var(--surface2); color: var(--text);
-  border: 1.5px solid var(--border2);
-  box-shadow: 0 4px 0 #000;
+.land-rb-vendor {
+  background: rgba(0,0,0,0.40);
+  color: #fff;
+  border: 1.5px solid rgba(255,255,255,0.40);
+  backdrop-filter: blur(8px);
 }
-.land-btn-dark:hover { background: var(--surface3); }
-
-.land-login-link { font-size: 14px; color: var(--text-muted); transition: color var(--t); }
-.land-login-link:hover { color: var(--green); }
-
-.land-footer {
-  position: absolute; bottom: 28px;
-  display: flex; align-items: center; gap: 12px;
+.land-rb-vendor:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.75);
+  transform: translateY(-2px);
 }
-.land-footer-link { font-size: 13px; color: var(--text-muted); transition: color var(--t); }
-.land-footer-link:hover { color: var(--text); }
-.land-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--border2); }
+.land-rb-en { font-size: 15px; font-weight: 700; }
+.land-rb-np { font-size: 12px; font-weight: 500; opacity: 0.7; }
+.land-rb-arrow { font-size: 14px; transition: transform 0.16s; }
+.land-rb:hover .land-rb-arrow { transform: translate(2px, -2px); }
 
-@media (max-width: 400px) {
-  .land-tagline { font-size: 36px; }
-  .land-btn .nepali { font-size: 24px; }
+.land-login-hint { font-family: 'Poppins', sans-serif; font-size: 13px; color: rgba(255,255,255,0.30); }
+.land-login-link { color: rgba(255,255,255,0.60); font-weight: 600; transition: color 0.15s; }
+.land-login-link:hover { color: #BBFF4B; }
+
+/* ── MOBILE ── */
+@media (max-width: 900px) {
+  
+  .land-nav-pills { display: none; }           /* hide desktop pills */
+  .land-hamburger { display: flex; }           /* show hamburger */
+  .land-nav-cta { display: none; }             /* hide sign in on mobile — it's in the menu */
+
+  .land-hero {
+    width: 100%;
+    margin-left: 0;
+    padding: 0 24px 24px;
+  }
+  .land-overlay { background: rgba(0,8,3,0.82); }
+  .land-headline { font-size: 32px; }
+  .land-sub { font-size: 14px; margin-bottom: 24px; }
+  .land-role-btns { flex-direction: column; gap: 10px; }
+  .land-rb { width: 100%; justify-content: center; }
 }

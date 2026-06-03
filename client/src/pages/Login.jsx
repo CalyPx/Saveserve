@@ -7,57 +7,70 @@ import './Auth.css';
 export default function Login() {
   const { login }   = useAuth();
   const navigate    = useNavigate();
-  const [phone, setPhone]       = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError]       = useState('');
-  const [loading, setLoading]   = useState(false);
+  const [form, setForm]   = useState({ phone: '', password: '' });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const handle = async e => {
     e.preventDefault();
     setLoading(true); setError('');
     try {
-      const { data } = await api.post('/auth/login', { phone, password });
-      login(data.user, data.token);                    // ← correct call
+      const { data } = await api.post('/auth/login', form);
+      login(data.user, data.token);
       navigate(data.user.role === 'farmer' ? '/farmer' : '/vendor');
     } catch (err) {
-      setError(err.response?.data?.message || 'Wrong phone or password');
+      setError(err.response?.data?.message || 'Wrong phone or password.');
     } finally { setLoading(false); }
   };
 
   return (
     <div className="auth-page">
-      <div className="auth-brand">
-        <Link to="/" className="auth-logo-link">
-          <img src="/images/harvo_logo.png" alt="Harvo" />
-          Harvo
-        </Link>
-        <p className="auth-brand-tag nepali">किसानको बाली, सीधा बजार</p>
-      </div>
+      <Link to="/" className="auth-top-logo">Harvo</Link>
 
-      <div className="auth-box card">
-        <h2 className="auth-title">Sign in</h2>
-        <p className="text-muted" style={{marginBottom:24,fontSize:14}}>Enter your phone number and password</p>
+      <div className="auth-card">
 
-        {error && <div className="auth-error">{error}</div>}
+        <h1 className="auth-form-title">Sign in</h1>
+        <p className="auth-form-sub">
+          Enter your phone number and password to continue.
+        </p>
 
-        <form onSubmit={handle} className="auth-form">
-          <div>
-            <label className="input-label">Phone Number</label>
-            <input className="input" type="tel" placeholder="98XXXXXXXX"
-              value={phone} onChange={e => setPhone(e.target.value)} required />
+        {error && <div className="auth-error-msg">{error}</div>}
+
+        <form onSubmit={handle} className="auth-fields">
+          <div className="auth-field">
+            <label className="auth-label">Phone Number</label>
+            <input
+              className="auth-input"
+              type="tel"
+              placeholder="98XXXXXXXX"
+              value={form.phone}
+              onChange={e => set('phone', e.target.value)}
+              required
+            />
           </div>
-          <div>
-            <label className="input-label">Password</label>
-            <input className="input" type="password" placeholder="••••••••"
-              value={password} onChange={e => setPassword(e.target.value)} required />
+          <div className="auth-field">
+            <label className="auth-label">Password</label>
+            <input
+              className="auth-input"
+              type="password"
+              placeholder="Your password"
+              value={form.password}
+              onChange={e => set('password', e.target.value)}
+              required
+            />
           </div>
-          <button className="btn btn-primary btn-lg" style={{width:'100%'}} disabled={loading}>
-            {loading ? 'Signing in...' : 'Sign In'}
+          <button className="auth-submit" type="submit" disabled={loading}>
+            {loading ? 'Signing in...' : 'Sign in ↗'}
           </button>
         </form>
 
-        <div className="auth-switch">
-          New to Harvo? <Link to="/register">Create account</Link>
+        <div className="auth-footer-note">
+          New to Harvo?{' '}
+          <Link to="/register?role=farmer" className="auth-link">Join as Farmer</Link>
+          {' · '}
+          <Link to="/register?role=vendor" className="auth-link">Join as Vendor</Link>
         </div>
       </div>
     </div>

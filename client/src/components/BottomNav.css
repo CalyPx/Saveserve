@@ -1,0 +1,78 @@
+/* Mobile-only bottom navigation — shown on screens ≤768px */
+.bottom-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 200;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    height: 64px;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  .bn-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color 0.15s;
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .bn-tab:active { opacity: 0.7; }
+
+  .bn-tab.bn-active { color: var(--green); }
+
+  .bn-icon-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .bn-badge {
+    position: absolute;
+    top: -5px;
+    right: -8px;
+    background: var(--orange);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 3px;
+  }
+
+  .bn-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  /* Push page content above the bottom nav */
+  .page-with-bottom-nav {
+    padding-bottom: 72px;
+  }
+
+  /* Hide top nav links on mobile — bottom nav replaces them */
+  .harvo-nav .nav-links,
+  .harvo-nav .nav-actions {
+    display: none;
+  }
+}

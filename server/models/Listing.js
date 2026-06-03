@@ -11,6 +11,7 @@ const listingSchema = new mongoose.Schema({
   displayPrice:   { type: Number },                     // price as farmer entered (per kg or per quintal)
   harvestDate:    { type: Date, required: true },
   district:       { type: String, required: true },
+  grade:          { type: String, enum: ['A', 'B', 'C'], default: 'B' },
   location:       { lat: { type: Number }, lng: { type: Number } },
   description:    { type: String },
   status: {

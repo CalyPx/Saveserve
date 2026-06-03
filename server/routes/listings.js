@@ -32,7 +32,7 @@ router.post('/', auth, async (req, res) => {
     if (req.user.role !== 'farmer') return res.status(403).json({ message: 'Only farmers can post listings' });
 
     const { crop, cropPhoto, unit, quantity, pricePerKg, displayPrice,
-            harvestDate, district, location, description } = req.body;
+            harvestDate, district, location, description, grade } = req.body;
 
     // Calculate expiry = harvestDate + shelfLife days
     const shelfDays = getShelfLife(crop);
@@ -47,11 +47,20 @@ router.post('/', auth, async (req, res) => {
       farmer: req.user.id, crop, cropPhoto, unit,
       quantity: qtyKg, originalQty: qtyKg,
       pricePerKg: priceKg, displayPrice: displayPrice || pricePerKg,
-      harvestDate: harvest, expiresAt, district, location, description
+      harvestDate: harvest, expiresAt, district, location, description, grade: grade || 'B'
     });
 
     req.app.get('io').emit('new_listing', listing);
     res.status(201).json(listing);
+  } catch (err) { res.status(500).json({ message: err.message }); }
+});
+
+// GET /api/listings/:id — single listing detail
+router.get('/:id', async (req, res) => {
+  try {
+    const listing = await Listing.findById(req.params.id).populate('farmer','name phone district');
+    if (!listing) return res.status(404).json({ message: 'Listing not found' });
+    res.json(listing);
   } catch (err) { res.status(500).json({ message: err.message }); }
 });
 

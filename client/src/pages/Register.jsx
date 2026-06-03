@@ -18,87 +18,113 @@ export default function Register() {
   const [params]    = useSearchParams();
 
   const [form, setForm] = useState({
-    name:'', phone:'', password:'',
+    name: '', phone: '', password: '',
     role: params.get('role') || 'farmer',
-    district:'Kathmandu',
+    district: 'Kathmandu',
   });
-  const [error, setError]     = useState('');
+  const [error,   setError]   = useState('');
   const [loading, setLoading] = useState(false);
 
-  const set = (k,v) => setForm(f => ({...f,[k]:v}));
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const isFarmer = form.role === 'farmer';
 
   const handle = async e => {
     e.preventDefault();
     setLoading(true); setError('');
     try {
       const { data } = await api.post('/auth/register', form);
-      login(data.user, data.token);                    // ← correct call
+      login(data.user, data.token);
       navigate(data.user.role === 'farmer' ? '/farmer' : '/vendor');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
+      setError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally { setLoading(false); }
   };
 
   return (
     <div className="auth-page">
-      <div className="auth-brand">
-        <Link to="/" className="auth-logo-link">
-          <img src="/images/harvo_logo.png" alt="Harvo" />
-          Harvo
-        </Link>
-        <p className="auth-brand-tag nepali">किसानको बाली, सीधा बजार</p>
-      </div>
+      <Link to="/" className="auth-top-logo">Harvo</Link>
 
-      <div className="auth-box card">
-        <h2 className="auth-title">Create account</h2>
+      <div className="auth-card">
 
-        {/* Role Toggle */}
-        <div className="auth-role-row">
-          <button type="button"
-            className={`auth-role-btn ${form.role==='farmer'?'active-green':''}`}
-            onClick={() => set('role','farmer')}>
-            <span className="nepali" style={{fontSize:22}}>किसान</span>
-            <span style={{fontSize:12}}>Farmer</span>
+        {/* Role tabs */}
+        <div className="auth-role-tabs">
+          <button
+            type="button"
+            className={`auth-rt ${isFarmer ? 'auth-rt-active' : ''}`}
+            onClick={() => set('role', 'farmer')}
+          >
+            Farmer <span className="nepali">· किसान</span>
           </button>
-          <button type="button"
-            className={`auth-role-btn ${form.role==='vendor'?'active-orange':''}`}
-            onClick={() => set('role','vendor')}>
-            <span className="nepali" style={{fontSize:22}}>व्यापारी</span>
-            <span style={{fontSize:12}}>Vendor</span>
+          <button
+            type="button"
+            className={`auth-rt ${!isFarmer ? 'auth-rt-active' : ''}`}
+            onClick={() => set('role', 'vendor')}
+          >
+            Vendor <span className="nepali">· व्यापारी</span>
           </button>
         </div>
 
-        {error && <div className="auth-error">{error}</div>}
+        <h1 className="auth-form-title">Create account</h1>
+        <p className="auth-form-sub">
+          {isFarmer
+            ? 'List your crops. Earn fair prices directly.'
+            : "Buy fresh produce directly from Nepal's farmers."}
+        </p>
 
-        <form onSubmit={handle} className="auth-form">
-          <div>
-            <label className="input-label">Full Name</label>
-            <input className="input" placeholder="Your name"
-              value={form.name} onChange={e => set('name',e.target.value)} required />
+        {error && <div className="auth-error-msg">{error}</div>}
+
+        <form onSubmit={handle} className="auth-fields">
+          <div className="auth-field">
+            <label className="auth-label">Full Name</label>
+            <input
+              className="auth-input"
+              placeholder="Ram Bahadur Thapa"
+              value={form.name}
+              onChange={e => set('name', e.target.value)}
+              required
+            />
           </div>
-          <div>
-            <label className="input-label">Phone</label>
-            <input className="input" type="tel" placeholder="98XXXXXXXX"
-              value={form.phone} onChange={e => set('phone',e.target.value)} required />
+          <div className="auth-field">
+            <label className="auth-label">Phone Number</label>
+            <input
+              className="auth-input"
+              type="tel"
+              placeholder="98XXXXXXXX"
+              value={form.phone}
+              onChange={e => set('phone', e.target.value)}
+              required
+            />
           </div>
-          <div>
-            <label className="input-label">District</label>
-            <select className="input" value={form.district} onChange={e => set('district',e.target.value)}>
+          <div className="auth-field">
+            <label className="auth-label">District</label>
+            <select
+              className="auth-input auth-select"
+              value={form.district}
+              onChange={e => set('district', e.target.value)}
+            >
               {DISTRICTS.map(d => <option key={d}>{d}</option>)}
             </select>
           </div>
-          <div>
-            <label className="input-label">Password</label>
-            <input className="input" type="password" placeholder="Min 6 characters"
-              value={form.password} onChange={e => set('password',e.target.value)} required minLength={6} />
+          <div className="auth-field">
+            <label className="auth-label">Password</label>
+            <input
+              className="auth-input"
+              type="password"
+              placeholder="Minimum 6 characters"
+              value={form.password}
+              onChange={e => set('password', e.target.value)}
+              required
+              minLength={6}
+            />
           </div>
-          <button className="btn btn-primary btn-lg" style={{width:'100%'}} disabled={loading}>
-            {loading ? 'Creating...' : `Join as ${form.role === 'farmer' ? 'Farmer' : 'Vendor'}`}
+          <button className="auth-submit" type="submit" disabled={loading}>
+            {loading ? 'Creating account...' : `Join as ${isFarmer ? 'Farmer' : 'Vendor'} ↗`}
           </button>
         </form>
 
-        <div className="auth-switch">
-          Already have an account? <Link to="/login">Sign in</Link>
+        <div className="auth-footer-note">
+          Already have an account?{' '}
+          <Link to="/login" className="auth-link">Sign in →</Link>
         </div>
       </div>
     </div>
