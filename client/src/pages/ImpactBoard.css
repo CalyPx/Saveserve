@@ -1,0 +1,25 @@
+.impact-page { min-height: 100vh; }
+.impact-hero { padding: 80px 0 40px; background: radial-gradient(ellipse at center, rgba(45,106,79,0.12) 0%, transparent 70%); }
+.impact-badge { display: inline-block; padding: 6px 16px; border-radius: 100px; background: rgba(45,106,79,0.2); border: 1px solid var(--green); font-size: 13px; color: var(--green-light); margin-bottom: 20px; }
+.impact-title { font-size: clamp(32px,5vw,60px); font-weight: 800; margin-bottom: 12px; }
+.impact-subtitle { font-size: 18px; }
+.big-counters { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+.big-counter  { text-align: center; padding: 32px 20px; }
+.bc-icon  { font-size: 40px; margin-bottom: 12px; }
+.bc-value { font-family: var(--font-head); font-size: clamp(28px,3vw,44px); font-weight: 800; margin-bottom: 8px; }
+.bc-label { font-size: 14px; color: var(--text-muted); }
+.comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 40px; }
+.compare-col h3 { font-size: 18px; margin-bottom: 20px; }
+.compare-chain { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 13px; text-align: center; }
+.chain-arrow { color: var(--border); font-size: 18px; }
+.chain-arrow.direct { color: var(--success); font-size: 14px; letter-spacing: -4px; }
+.activity-feed { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-top: 24px; }
+.activity-item { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-bottom: 1px solid var(--border); animation: fadeInUp 0.4s ease both; transition: background 0.15s; }
+.activity-item:last-child { border: none; }
+.activity-item:hover { background: var(--surface2); }
+.activity-icon { font-size: 20px; flex-shrink: 0; }
+.activity-msg  { flex: 1; font-size: 14px; }
+.activity-time { font-size: 12px; flex-shrink: 0; }
+.cta-section { background: radial-gradient(ellipse at center, rgba(45,106,79,0.1) 0%, transparent 70%); }
+@media (max-width: 768px) { .big-counters { grid-template-columns: repeat(2,1fr); } .comparison { grid-template-columns: 1fr; } }
+@media (max-width: 480px) { .big-counters { grid-template-columns: 1fr; } }
